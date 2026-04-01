@@ -40,8 +40,8 @@ rm(list = c('installed_packages', 'packages'))
 # ------------------------------------------------------------------------------
 # 1) read data
 # ------------------------------------------------------------------------------
-data      <- fread("Data/exist.csv")#[,-"R26P04_66_307032_PCaInnsbruck_Ctrls_A_T_C2"]
-data_fold <- fread("Data/fold.csv")#[,-"R26P04_66_307032_PCaInnsbruck_Ctrls_A_T_C2"]
+data      <- fread("Data/exist.csv")
+data_fold <- fread("Data/fold.csv")
 # ------------------------------------------------------------------------------
 # 2) pivot "exist" to long
 # ------------------------------------------------------------------------------
@@ -88,23 +88,7 @@ long_df <- long_exist |>
 # ------------------------------------------------------------------------------
 # 5) read metadata + clean names + join
 # ------------------------------------------------------------------------------
-metadata <- fread("Metadata/IBD-Berlin_metadata.csv") #%>%
-# mutate(
-#   group_cmb = ifelse(
-#     group_liver != "Controls" & !is.na(Etiology),
-#     paste(Etiology, group_sar, sep = "_"),
-#     NA
-#   )
-#   group_test = factor(
-#     group_test,
-#     levels = c("Cirr+Sar", "Cirr+No Sar", "No cirr+Sar", "Controls")
-#   ),
-#   Etiology = factor(
-#     Etiology,
-#     levels = c("HCV", "Alcohol", "MASH", "Others")
-#   )
-#)
-
+metadata <- fread("Metadata/IBD-Berlin_metadata.csv")
 colnames(metadata)[1] <- "sample_id"
 names(metadata) <- make.unique(names(metadata))
 
@@ -118,24 +102,10 @@ idx_inf <- is.infinite(long_df$fold_change)
 long_df$fold_change[idx_inf] <- max_fc
 
 ## ---------------------------------- DATA EXPORT ------------------------------
-## exporting the data to a .parquet file --> for phiper use
-
-# long_df_subset <- long_df %>%
-#   dplyr::filter(!is.na(group_cmb), 
-#                 !is.na(Etiology),
-#                 !grepl("Others", group_cmb, ignore.case = TRUE),
-#                 !grepl("Others", Etiology, ignore.case = TRUE))
-# 
-
 ## safety-check
 data_export <- long_df %>%
   distinct(sample_id, peptide_id, .keep_all = TRUE)
 
-# data_export_subset <- long_df_subset %>%
-#   distinct(sample_id, peptide_id, .keep_all = TRUE)
-
-
-# 1. open (or create) a DuckDB database ----------------------------------------
 con <- dbConnect(duckdb::duckdb(), dbdir = ":memory:", read_only = FALSE)
 
 # 2. expose the data frame to DuckDB -------------------------------------------
@@ -145,31 +115,12 @@ duckdb::duckdb_register(con, "df_tbl", data_export)
 # 3. Persist it to Parquet -----------------------------------------------------
 dbExecute(
   con,
-  "COPY df_tbl TO 'Data/IBD-Berlin.parquet' (FORMAT PARQUET);"
+  "COPY df_tbl TO 'Data/SNMG.parquet' (FORMAT PARQUET);"
 )
 
 # 4. Clean up ------------------------------------------------------------------
 dbDisconnect(con, shutdown = TRUE)
 
-
-# 
-# # 1. open (or create) a DuckDB database ----------------------------------------
-# con <- dbConnect(duckdb::duckdb(), dbdir = ":memory:", read_only = FALSE)
-# 
-# # 2. expose the data frame to DuckDB -------------------------------------------
-# duckdb::duckdb_register(con, "df_tbl", data_export_subset)
-# 
-# # -- df is now a virtual table called "df_tbl" inside the DB
-# # 3. Persist it to Parquet -----------------------------------------------------
-# dbExecute(
-#   con,
-#   "COPY df_tbl TO 'Data/SAR_MUW_subset.parquet' (FORMAT PARQUET);"
-# )
-# 
-# # 4. Clean up ------------------------------------------------------------------
-# dbDisconnect(con, shutdown = TRUE)
-
 rm(list = c("long_df", "data_export", "con", "data", "metadata", "start_idx_exist", "start_idx_fc"))
-#rm(list = c("long_df", "data_export", "data_export_subset", "con", "data", "metadata", "start_idx_exist", "start_idx_fc"))
 gc()
 

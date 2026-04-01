@@ -21,7 +21,7 @@ execute:
   warning: false
   message: false
 params:
-  base_dir: "SAR/results"
+  base_dir: "SNMG/results"
   group_col: "group_test"
   top_n: 500
   tables_open: false

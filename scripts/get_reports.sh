@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=IBD-report
+#SBATCH --job-name=SNMG-report
 #SBATCH --output=logs/%x_%j.out
 #SBATCH --error=logs/%x_%j.err
 #SBATCH --time=00:20:00

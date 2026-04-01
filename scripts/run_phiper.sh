@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=phiper
-#SBATCH --output=logs/IBD-Chile_%x_%j.out
-#SBATCH --error=logs/IBD-Chile_%x_%j.err
+#SBATCH --output=logs/SNMG_%x_%j.out
+#SBATCH --error=logs/SNMG_%x_%j.err
 #SBATCH --time=05:00:00
 #SBATCH --cpus-per-task=30
 #SBATCH --mem=40G
