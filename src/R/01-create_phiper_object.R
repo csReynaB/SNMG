@@ -88,7 +88,7 @@ long_df <- long_exist |>
 # ------------------------------------------------------------------------------
 # 5) read metadata + clean names + join
 # ------------------------------------------------------------------------------
-metadata <- fread("Metadata/IBD-Berlin_metadata.csv")
+metadata <- fread("Metadata/SNMG_metadata.csv")
 colnames(metadata)[1] <- "sample_id"
 names(metadata) <- make.unique(names(metadata))
 
